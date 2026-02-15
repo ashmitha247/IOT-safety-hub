@@ -1,9 +1,6 @@
 <div align="center">
   <img src="assets/banner.png" alt="IoT-Safety-Hub Banner" width="100%">
 </div>
-
-# 🛡️ IoT-Safety-Hub
-
 ---
 
 ## Overview

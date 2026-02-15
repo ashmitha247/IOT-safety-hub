@@ -1,23 +1,15 @@
 # 🛡️ IoT-Safety-Hub <div align="center">
-  <img src="https://img.shields.io/badge/Status-Active-success.svg" alt="Status">
-  <img src="https://img.shields.io/badge/Hardware-ESP32-blue.svg" alt="Hardware">
-  <img src="https://img.shields.io/badge/Backend-FastAPI-009688.svg" alt="FastAPI">
-  <img src="https://img.shields.io/badge/Frontend-Streamlit-FF4B4B.svg" alt="Streamlit">
-  <img src="https://img.shields.io/badge/Database-SQLite-003B57.svg" alt="SQLite">
-</div><br>
-
-**Enterprise-grade continuous gas monitoring and automated compliance logging designed specifically for MSMEs.** ---
+**Enterprise-grade continuous gas monitoring and automated compliance logging designed specifically for MSMEs.** 
 
 ## 📖 The Problem vs. The Solution
 
-Large industrial factories utilize complex SCADA systems (costing ₹7.5L+) for continuous hazard monitoring. MSMEs (Chemical units, Pharma labs, Woodshops, Food processing) cannot afford these, leaving them reliant on isolated, reactive buzzers. **IoT-Safety-Hub** is a highly affordable (~₹3,500) local-edge IoT architecture that replaces "dumb" alarms with continuous behavioral monitoring, remote escalation, and legally compliant data logging.
+Large industrial factories utilize complex SCADA systems for continuous hazard monitoring. MSMEs (Chemical units, Pharma labs, Woodshops, Food processing) cannot afford these, leaving them reliant on isolated, reactive buzzers. **IoT-Safety-Hub** is a highly affordable local-edge IoT architecture that replaces passive alarms with continuous behavioral monitoring, remote escalation, and legally compliant data logging.
 
 ### Key Value Propositions
 * 🚨 **Solving the "Silent Night" Vulnerability:** Standalone buzzers ring to empty rooms at 2 AM. This system features a background escalation engine to alert owners remotely.
 * 📈 **Proactive "Near-Miss" Detection:** By logging continuous PPM data, owners can spot slow upward gas trends (e.g., a failing generator valve) days before it triggers a critical alarm.
 * 📑 **Closing the Audit Gap:** 88% of small factories fail fire audits due to missing records. This system generates tamper-evident, one-click safety reports compliant with **IS 14489:1998** standards.
 
----
 
 ## 🏗️ System Architecture
 
@@ -28,7 +20,7 @@ The system operates on a highly reliable **"Pull" architecture (Continuous Polli
 3. **Processing Vault (Backend):** A Python **FastAPI** edge server validates payloads via Pydantic and commits them to a permanent **SQLite** database.
 4. **Presentation Layer (Frontend):** A **Streamlit** dashboard polls the SQL database every 5 seconds to render live behavioral graphs and export audit logs.
 
----
+
 
 ## 📂 Repository Structure
 

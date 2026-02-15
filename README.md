@@ -1,89 +1,128 @@
-# 🛡️ IoT-Safety-Hub <div align="center">
-**Enterprise-grade continuous gas monitoring and automated compliance logging designed specifically for MSMEs.** 
+# 🛡️ IoT-Safety-Hub
 
-## 📖 The Problem vs. The Solution
+Edge-based gas monitoring and compliance logging system built with ESP32, FastAPI, SQLite, and Streamlit.
 
-Large industrial factories utilize complex SCADA systems for continuous hazard monitoring. MSMEs (Chemical units, Pharma labs, Woodshops, Food processing) cannot afford these, leaving them reliant on isolated, reactive buzzers. **IoT-Safety-Hub** is a highly affordable local-edge IoT architecture that replaces passive alarms with continuous behavioral monitoring, remote escalation, and legally compliant data logging.
+---
 
-### Key Value Propositions
-* 🚨 **Solving the "Silent Night" Vulnerability:** Standalone buzzers ring to empty rooms at 2 AM. This system features a background escalation engine to alert owners remotely.
-* 📈 **Proactive "Near-Miss" Detection:** By logging continuous PPM data, owners can spot slow upward gas trends (e.g., a failing generator valve) days before it triggers a critical alarm.
-* 📑 **Closing the Audit Gap:** 88% of small factories fail fire audits due to missing records. This system generates tamper-evident, one-click safety reports compliant with **IS 14489:1998** standards.
+## Overview
 
+IoT-Safety-Hub is a LAN-deployed monitoring system designed to:
 
-## 🏗️ System Architecture
+- Continuously ingest gas sensor data
+- Persist readings in a structured SQL database
+- Provide real-time visualization
+- Generate exportable audit logs
 
-The system operates on a highly reliable **"Pull" architecture (Continuous Polling)** over a Local Area Network (LAN), ensuring stability on standard MSME hardware without requiring expensive cloud computing.
+The system replaces standalone reactive alarms with persistent, queryable records.
 
-1. **Sensing Layer:** ESP32 reads MQ-7 (Carbon Monoxide) and MQ-4 (Methane) sensors via 12-bit ADC.
-2. **Transmission Layer:** Data is packaged into JSON and transmitted over HTTP POST.
-3. **Processing Vault (Backend):** A Python **FastAPI** edge server validates payloads via Pydantic and commits them to a permanent **SQLite** database.
-4. **Presentation Layer (Frontend):** A **Streamlit** dashboard polls the SQL database every 5 seconds to render live behavioral graphs and export audit logs.
+---
 
+## Features
 
+- RESTful ingestion endpoint
+- Schema validation with Pydantic
+- SQLite persistence via SQLAlchemy ORM
+- Background escalation engine (non-blocking)
+- Live dashboard with 5s polling interval
+- CSV export for audit compliance
+- Fully local (no cloud dependency)
 
-## 📂 Repository Structure
+---
+
+## Architecture
 
 ```text
-IOT-safety-hub/
+ESP32 (MQ-7, MQ-4 Sensors)
+       ↓ HTTP POST (JSON)
+FastAPI Backend
+       ↓
+SQLite Database
+       ↓
+Streamlit Dashboard
+```
+
+### Stack
+
+- **Hardware:** ESP32
+- **Backend:** FastAPI, SQLAlchemy, Pydantic
+- **Database:** SQLite
+- **Frontend:** Streamlit, Pandas
+- **Protocol:** HTTP (LAN)
+
+---
+
+## Repository Structure
+
+```text
+iot-safety-hub/
 │
-├── backend/                  # The Data Vault & Listener
-│   ├── main.py               # FastAPI server & Escalation Engine
-│   └── requirements.txt      # Python dependencies (fastapi, uvicorn, sqlalchemy)
+├── backend/
+│   ├── main.py
+│   └── requirements.txt
 │
-├── frontend/                 # The Presentation Layer
-│   ├── app.py                # Streamlit live dashboard & Audit Exporter
-│   └── requirements.txt      # Python dependencies (streamlit, pandas)
+├── frontend/
+│   ├── app.py
+│   └── requirements.txt
 │
-└── hardware/                 # The Physical Layer
-    └── esp32_firmware.ino    # C++ Arduino IDE firmware
+└── hardware/
+    └── esp32_firmware.ino
 ```
 
 ---
 
-## 🚀 Local Deployment Guide
+## Getting Started
 
-### 1. Backend Setup (The Listener)
-Open a terminal, navigate to the `backend` directory, and start the FastAPI server:
+### 1. Clone the Repository
+
+```bash
+git clone <repo-url>
+cd iot-safety-hub
+```
+
+### 2. Backend Setup
 
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate      # Windows (Use 'source venv/bin/activate' for Mac/Linux)
+venv\Scripts\activate      # Windows
+# source venv/bin/activate # macOS/Linux
+
 pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
-The API will be live at `http://localhost:8000`. The SQLite database (`safety_hub_logs.db`) will auto-generate upon receiving the first data packet.
+* **API will be available at:** `http://localhost:8000`
+* **Interactive docs:** `http://localhost:8000/docs`
 
-### 2. Frontend Setup (The Dashboard)
-Open a new terminal tab, navigate to the `frontend` directory, and launch the UI:
+### 3. Frontend Setup
+Open a new terminal:
 
 ```bash
 cd frontend
 python -m venv venv
-venv\Scripts\activate      
+venv\Scripts\activate
 pip install -r requirements.txt
 streamlit run app.py
 ```
-The dashboard will automatically open in your browser at `http://localhost:8501`, polling the database every 5 seconds.
+* **Dashboard runs at:** `http://localhost:8501`
 
-### 3. Hardware Setup (The Sensors)
-1. Turn on a Local Area Network (e.g., Mobile Hotspot) and connect your PC.
-2. Find your PC's local IPv4 address.
-3. Open `hardware/esp32_firmware.ino` in the Arduino IDE.
-4. Update the `ssid`, `password`, and `serverName` variables with your network details and IP address.
-5. Connect the ESP32 via USB and click **Upload**.
+### 4. Hardware Setup
+
+1. Connect ESP32 to your local network.
+2. Update `hardware/esp32_firmware.ino`:
+   ```cpp
+   const char* serverName = "http://<YOUR_LOCAL_IP>:8000/ingest";
+   ```
+3. Upload firmware using Arduino IDE.
+4. Ensure your firewall allows port 8000.
 
 ---
 
-## 📡 API Reference
+## API Reference
 
-**`POST /ingest`**
+### `POST /ingest`
+Ingest sensor data.
 
-Receives analog sensor data from the ESP32, validates the structure, writes to the SQL vault, and evaluates the 2-minute critical escalation protocol.
-
-**Expected JSON Payload:**
-
+**Request Body**
 ```json
 {
   "mq7_ppm": 25.5,
@@ -93,9 +132,49 @@ Receives analog sensor data from the ESP32, validates the structure, writes to t
 }
 ```
 
+**Responses**
+- `200 OK` – Data stored successfully
+- `422 Unprocessable Entity` – Schema validation failed
+- `500 Internal Server Error` – Unexpected backend error
+
 ---
 
-## 🔮 Future Enhancements
-* **GSM Module Integration:** Fallback hardware redundancy for localized Wi-Fi failures.
-* **Automated Actuators:** Hardware relays to trigger exhaust fans or solenoid shut-off valves based on SQL thresholds.
-* **Cloud Migration:** Transitioning the local Edge FastAPI server to AWS/Heroku for multi-facility dashboarding.
+## Design Decisions
+
+- **FastAPI** selected for async performance and automatic OpenAPI documentation.
+- **SQLite** chosen for zero-configuration edge deployment.
+- **Polling (5s)** used instead of WebSockets for stability and simplicity.
+- **LAN-first architecture** reduces latency and avoids cloud dependency.
+
+---
+
+## Security Considerations
+
+- No authentication layer
+- HTTP only (no TLS)
+- Designed for trusted LAN environments
+
+**For internet exposure:**
+- Add HTTPS via reverse proxy
+- Implement JWT authentication
+- Replace SQLite with PostgreSQL
+
+---
+
+## Limitations
+
+- Single-node deployment
+- Not horizontally scalable
+- No built-in alert delivery (SMS/Email)
+
+---
+
+## Roadmap
+
+- [ ] Docker support
+- [ ] Environment-based configuration
+- [ ] PostgreSQL migration
+- [ ] Alert integration (SMS / Email)
+- [ ] Multi-sensor support
+
+---

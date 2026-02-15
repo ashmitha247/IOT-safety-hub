@@ -4,8 +4,6 @@
 
 # 🛡️ IoT-Safety-Hub
 
-Edge-based gas monitoring and compliance logging system built with ESP32, FastAPI, SQLite, and Streamlit.
-
 ---
 
 ## Overview

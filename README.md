@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/banner.png" alt="IoT-Safety-Hub Banner" width="100%">
+</div>
+
 # 🛡️ IoT-Safety-Hub
 
 Edge-based gas monitoring and compliance logging system built with ESP32, FastAPI, SQLite, and Streamlit.
